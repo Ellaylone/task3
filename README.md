@@ -18,3 +18,49 @@
 ##Что мы проверяем этим заданием?
 
 Мы хотим проверить вашу способность разобраться в незнакомом коде и/или API. Также с помощью этого задания мы оценим ваш навык отладки. Поэтому прокомментируйте, пожалуйста, в коде или текстовом файле README ход ваших мыслей — какие ошибки и как вы нашли, почему они возникли и какие способы исправления существуют. Мы не ограничиваем вас в использовании сторонних инструментов и библиотек, однако при их использовании также ожидаем комментариев, в которых вы расскажете, зачем и почему было использовано то или иное средство.
+
+##Решение
+
+заменяем порт 8080 на указанный в README 3000
+```
+app.listen(8080, () => {
+    console.log('Server listening on port 8080!');
+});
+```
+
+serviceWorker указывает на /js/ - поднимаем воркер на уровень выше и исправляем путь в регистрации 
+```
+if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/js/worker.js');
+            }
+```
+также исправляем пути на статику 
+```
+var urlsToCache = [
+  '/',
+  '/index.css',
+  '/index.js'
+];
+```
+исправляем синтаксическую ошибку 
+```
+return event.respondWith(
+  getFromCache(event.request).catch(fetchAndPutToCache);
+);
+```
+также для того чтобы передать `request` в `fetchAndPutToCache` - в `getFromCache` передаем `request` в `reject()`
+```
+return Promise.reject();
+```
+гонка между `fetchAndPutToCache` и `getFromCache` возвращает непредсказуемый результат
+```
+Promise.race([
+  fetchAndPutToCache(event.request),
+  getFromCache(event.request)
+])
+```
+избавимся от гонки и всегда в первую очередь будем вызывать `fetchAndPutToCache` и в нем 
+```
+.catch(() => caches.match(request))
+```
+в catch будем вызывать `getFromCache`
