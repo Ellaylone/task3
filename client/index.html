@@ -5,6 +5,7 @@
 		<title>Студенты ШРИ 2016</title>
         <script type="text/javascript">
             if ('serviceWorker' in navigator) {
+                //NOTE scope указывал только на /js/ - нужно поднять его на уровень выше
                 navigator.serviceWorker.register('worker.js');
             }
         </script>
